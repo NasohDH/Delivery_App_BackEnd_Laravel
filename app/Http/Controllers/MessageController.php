@@ -14,20 +14,11 @@ class MessageController extends Controller
         $messages = Message::all();
         return view('messages', compact('messages'));
     }
-    public function sendMessage(Request $request)
+    public function sendMessage($phone)
     {
-        $validator = Validator::make($request->all() , [
-            'phone' => ['required','max:10','min:10'],
-        ]);
-        if ($validator->fails()){
-            return response()->json([
-                'message' => "Sending failed",
-                'data' =>$validator->errors()
-            ]);
-        }
         Message::create(
             [
-                'phone'=>$request->phone,
+                'phone'=>$phone,
                 'code'=>random_int(100000, 999999)
             ]
         );
