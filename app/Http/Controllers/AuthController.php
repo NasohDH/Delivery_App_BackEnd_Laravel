@@ -7,6 +7,7 @@ use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 
@@ -44,11 +45,10 @@ class AuthController extends Controller
     public function verify(Request $request){
         $validator = Validator::make($request->all() , [
             'phone' => ['required'],
-            'password' => ['required','min:8'],
         ]);
         if ($validator->fails()){
             return response()->json([
-                'message' => "Registration failed",
+                'message' => "Verifying failed",
                 'data' =>$validator->errors()
             ]);
         }
@@ -64,6 +64,7 @@ class AuthController extends Controller
     {
         $validator = Validator::make($request->all() , [
             'phone' => ['required','max:10','min:10'],
+            'code' => ['required','max:6','min:6'],
             'password' => ['required','min:8'],
             'first_name' => 'required',
             'last_name' => 'required',
@@ -77,10 +78,12 @@ class AuthController extends Controller
         }
         $phone = $request->input('phone');
         $password = $request->input('password');
+        $code = $request->input('code');
         $first_name = $request->input('first_name');
         $last_name = $request->input('last_name');
         $location = $request->input('location');
-
+        if(Cache::get($phone)!=$code)
+            return response()->json (['message' => 'Incorrect code'], 400);
         $user=User::create([
             'phone'=>$phone,
             'password'=>Hash::make($password),
