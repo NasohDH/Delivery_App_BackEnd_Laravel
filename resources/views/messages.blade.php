@@ -80,12 +80,14 @@
 <div class="container">
     <h2>Sent Messages :</h2>
     <ul>
-        @foreach ($messages as $msg)
             <li>
-                <span>To:</span> {{ $msg['phone'] }}
-                <span>Code:</span> {{ $msg['code'] }}
+                @if(isset($messages['phone']))
+                    <span>To:</span> {{ $messages['phone'] }}
+                    <span>Code:</span> {{ $messages['code'] }}
+                @else
+                    <span>No available messages for your number.</span>
+                @endif
             </li>
-        @endforeach
     </ul>
 </div>
 
