@@ -80,16 +80,16 @@
 <div class="container">
     <h2>Sent Messages :</h2>
     <ul>
-            <li>
-                @if(isset($messages['phone']))
-                    <span>To:</span> {{ $messages['phone'] }}
-                    <span>Code:</span> {{ $messages['code'] }}
-                @else
-                    <span>No available messages for your number.</span>
-                @endif
-            </li>
+        <li>
+            @if(isset($messages['phone']))
+                <span>To:</span> {{ $messages['phone'] }}
+                <span>Code:</span> {{ $messages['code'] }}
+            @else
+                <span>No available messages for your number.</span>
+            @endif
+        </li>
     </ul>
-</div>A
+</div>
 
 </body>
 </html>
