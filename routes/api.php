@@ -1,8 +1,11 @@
 <?php
 
+use App\Http\Controllers\AdController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\MessageController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\SearchController;
 use App\Http\Controllers\StoreController;
 use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
@@ -21,13 +24,27 @@ Route::controller(AuthController::class)->group(function (){
 });
 
 Route::controller(ProductController::class)->group(function (){
-    Route::get('/allProducts', [ProductController::class, 'allProducts']);
-    Route::get('/latestProducts', [ProductController::class, 'latestProducts']);
-    Route::get('/product/{id}', [ProductController::class, 'product']);
+    Route::get('/allProducts', 'allProducts');
+    Route::get('/latestProducts', 'latestProducts');
+    Route::get('/product/{id}', 'product');
 });
 
 Route::controller(StoreController::class)->group(function (){
-    Route::get('/allStores', [StoreController::class, 'allStores']);
-    Route::get('/latestStores', [StoreController::class, 'latestStores']);
-    Route::get('/store/{id}', [StoreController::class, 'store']);
+    Route::get('/allStores', 'allStores');
+    Route::get('/latestStores', 'latestStores');
+    Route::get('/store/{id}', 'store');
 });
+
+Route::controller(CategoryController::class)->prefix('categories')->group(function () {
+    Route::get('/', 'getAllCategories');
+    Route::get('{category}/subcategories', 'getSubcategoriesByCategory');
+});
+
+Route::controller(AdController::class)->group(function (){
+    Route::get('/ads' , 'index');
+    Route::post('/ads' , 'store');
+    Route::delete('/ads/{id}',  'destroy');
+
+});
+
+Route::get('/search' , SearchController::class);
