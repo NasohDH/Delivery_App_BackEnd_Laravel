@@ -9,9 +9,8 @@ class CategoryController extends Controller
 {
     public function getAllCategories(){
 
-        $categories=Category::where('parent_id',null)->get();
-
-        if ($categories == null) {
+        $categories = Category::where('parent_id' , null)->get();
+        if ($categories->isEmpty()) {
             return response()->json([
                 'message' => 'No categories found.',
                 'data' => []
@@ -24,7 +23,6 @@ class CategoryController extends Controller
         ]);
     }
     public function getSubcategoriesByCategory($categoryID){
-
         $category = Category::where('id',$categoryID)->where('parent_id', null)->first();
 
         if (!$category) {
