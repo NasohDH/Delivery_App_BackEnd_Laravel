@@ -19,3 +19,4 @@ class MessageController extends Controller
         return view('messages', ['messages' => $messages]);
     }
 }
+

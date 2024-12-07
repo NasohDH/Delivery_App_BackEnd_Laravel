@@ -39,9 +39,9 @@ class UserController extends Controller
 //                'last_name' => $user->last_name,
 //                'location' => $user->location,
 //            ];
-//                return response()->json([
-//                    'data' => $userInfo,
-//                ]);
+//            return response()->json([
+//                'data' => $userInfo,
+//            ]);
 //        }
 //        return response()->json([
 //            'message' => 'User not found'
