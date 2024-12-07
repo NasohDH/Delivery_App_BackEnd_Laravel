@@ -19,6 +19,7 @@ Route::controller(AuthController::class)->group(function (){
     Route::post('/sendCode', 'sendCode');
     Route::post('/verify', 'verify');
     Route::post('/register', 'register');
+    Route::post('/resetPassword', 'resetPassword');
     Route::post('/login', 'login');
     Route::post('/logout', 'logout')->middleware('auth:sanctum');
 });
