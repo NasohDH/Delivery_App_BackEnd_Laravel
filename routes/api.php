@@ -47,4 +47,7 @@ Route::controller(AdController::class)->group(function (){
 
 });
 
-Route::get('/search' , SearchController::class);
+Route::controller(SearchController::class)->group(function (){
+    Route::get('/search', 'search');
+    Route::get('/autoComplete', 'autoComplete');
+});
