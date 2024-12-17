@@ -6,6 +6,7 @@ trait sortProductsAndStores
 {
     public function sortProductsAndStores($sortBy, $productsQuery, $storesQuery)
     {
+
         if($productsQuery) {
             if ($sortBy === 'price') {
                 $productsQuery->orderBy('price', 'asc');
