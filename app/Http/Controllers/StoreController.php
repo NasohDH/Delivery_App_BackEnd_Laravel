@@ -30,11 +30,11 @@ class StoreController extends Controller
         }
 
         return response()->json([
-            'current_page' => $stores->currentPage(),
-            'data' => $stores,
-            'first_page_url' => $stores->url(1),
-            'last_page' => $stores->lastPage(),
-            'last_page_url' => $stores->url($stores->lastPage()),
+        'current_page' => $stores->currentPage(),
+        'data' => $stores,
+        'first_page_url' => $stores->url(1),
+        'last_page' => $stores->lastPage(),
+        'last_page_url' => $stores->url($stores->lastPage()),
             'links' => [
                 'previous' => $stores->previousPageUrl(),
                 'next' => $stores->nextPageUrl(),
