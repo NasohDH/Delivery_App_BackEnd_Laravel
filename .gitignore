@@ -21,7 +21,3 @@ yarn-error.log
 /.nova
 /.vscode
 /.zed
-
-# Project exclude paths
-/storage/app/
-/storage/framework/
