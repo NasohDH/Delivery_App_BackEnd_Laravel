@@ -2,8 +2,6 @@
 
 namespace App\Traits;
 
-use App\Models\Product;
-use App\Models\Store;
 use Carbon\Carbon;
 
 trait filterProductsAndStores
@@ -30,6 +28,14 @@ trait filterProductsAndStores
             if ($productsQuery) {
                 $productsQuery->whereHas('store', function ($query) use ($country) {
                     $query->where('location->country', $country);
+                });
+            }
+        }
+
+        if ($store = $request->get('store')) {
+            if ($productsQuery) {
+                $productsQuery->whereHas('store', function ($query) use ($store) {
+                    $query->where('name', $store);
                 });
             }
         }

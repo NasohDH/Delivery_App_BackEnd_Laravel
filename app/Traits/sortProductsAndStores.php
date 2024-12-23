@@ -8,11 +8,13 @@ trait sortProductsAndStores
     {
 
         if($productsQuery) {
-            if ($sortBy === 'price') {
+            if ($sortBy === 'price_asc') {
                 $productsQuery->orderBy('price', 'asc');
             } elseif ($sortBy === 'name') {
                 $productsQuery->orderBy('name', 'asc');
             } elseif ($sortBy === 'created_at') {
+                $productsQuery->orderBy('created_at', 'desc');
+            }elseif ($sortBy === 'price_desc') {
                 $productsQuery->orderBy('created_at', 'desc');
             }
         }

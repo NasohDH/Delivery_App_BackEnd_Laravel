@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Category;
 use App\Models\Product;
 use App\Models\Store;
 use App\Traits\filterProductsAndStores;
@@ -11,6 +12,7 @@ use Illuminate\Http\Request;
 class SearchController extends Controller
 {
     use filterProductsAndStores , sortProductsAndStores;
+
     public function search(Request $request)
     {
         if (!$request->has('key') || $request->get('key') == null) {
@@ -42,7 +44,17 @@ class SearchController extends Controller
                 'message' => 'No products or stores found.',
             ], 404);
         }
-
+        $type = $request->get('type');
+        if($type=='products'){
+            return response()->json([
+                'products' => $products,
+            ], 200);
+        }
+        if($type=='stores'){
+            return response()->json([
+                'stores' => $stores,
+            ], 200);
+        }
         return response()->json([
             'products' => $products,
             'stores' => $stores,
@@ -51,7 +63,6 @@ class SearchController extends Controller
     public function autoComplete(Request $request)
     {
         $key = $request->get('key', '');
-        $suggestions = [];
         if (!empty($key)) {
             $stores = Store::where('name', 'LIKE', $key . '%')
                 ->limit(5)
@@ -59,9 +70,37 @@ class SearchController extends Controller
             $products = Product::where('name', 'LIKE', $key . '%')
                 ->limit(5)
                 ->pluck('name');
-            $suggestions = $stores->merge($products)->unique()->values()->all();
+            $matchedCategories = Category::where('name', 'LIKE', $key . '%')
+                ->limit(5)
+                ->get();
+            $categories =[];
+            foreach ($matchedCategories as $category) {
+                $parents = [];
+                $current = $category->parentCategory;
+
+                while ($current) {
+                    $parents[] = [
+                        'id' => $current->id,
+                        'name' => $current->name,
+                    ];
+                    $current = $current->parentCategory;
+                }
+
+                $categories[] = [
+                    $category->name => [
+                        'parents' => array_reverse($parents),
+                    ],
+                ];
+            }
+            return response()->json([
+                'products' => $products,
+                'stores' => $stores,
+                'categories' => $categories
+            ], 200);
         }
 
-        return response()->json($suggestions);
+        return response()->json([
+            'message' => 'key query parameter is required',
+        ], 400);
     }
 }
