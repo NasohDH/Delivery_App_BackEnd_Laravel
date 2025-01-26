@@ -14,10 +14,9 @@ class AdsTableSeeder extends Seeder
     public function run(): void
     {
         DB::table('ads')->insert([
-            ['image'=>'C:\Projects\Laravel Projects\laptop.jfif'],
-            ['image'=>'C:\Projects\Laravel Projects\laptop.jfif'],
-            ['image'=>'C:\Projects\Laravel Projects\laptop.jfif'],
-            ['image'=>'C:\Projects\Laravel Projects\laptop.jfif']
+            ['image'=>'storage/images/ads/y10fXAzUOeGuX0lqbyGG6fH6NWI7gOZ0hDO9DAIY.jpg' , 'store_id'=>6],
+            ['image'=>'storage/images/ads/NBa1FEaRQ3b72326o07z06dDRo7Z7bx8PiQrDEht.jpg' , 'store_id'=>1],
+            ['image'=>'storage/images/ads/4wc3lXcBwIxdoPwdoMfxLsRwnx0g7m2zXdZYwEoS.jpg' , 'store_id'=>4],
         ]);
     }
 }

@@ -10,7 +10,10 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Product extends Model
 {
+
     use HasFactory;
+    protected $fillable = ['quantity'];
+
     protected $hidden = ['store_id'];
 
     public function store() : BelongsTo
@@ -30,4 +33,8 @@ class Product extends Model
     {
         return $this->belongsToMany(Category::class);
     }
+    public function users() {
+        return $this->belongsToMany(User::class, 'favorites');
+    }
+
 }

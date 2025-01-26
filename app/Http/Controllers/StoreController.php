@@ -2,17 +2,20 @@
 
 namespace App\Http\Controllers;
 
+use App\Jobs\ProcessLocation;
 use App\Models\Store;
+use App\Models\User;
 use App\Traits\filterProductsAndStores;
 use App\Traits\sortProductsAndStores;
 use Illuminate\Http\Request;
+use Validator;
 
 class StoreController extends Controller
 {
     use sortProductsAndStores, filterProductsAndStores;
     public function getStores(Request $request)
     {
-        $storesQuery = Store::select('id', 'name', 'location', 'image');
+        $storesQuery = Store::select('id', 'name', 'location', 'image', 'discount');
 
         $this->filterProductsAndStores($request, null, $storesQuery);
 
@@ -44,21 +47,7 @@ class StoreController extends Controller
             'total' => $stores->total(),
         ]);
     }
-    public function latestStores()
-    {
-        $stores = Store::select('id', 'name', 'image' ,'location')->latest()->take(10)->get();
 
-        if ($stores->isEmpty()) {
-            return response()->json([
-                'message' => 'No stores available.',
-            ], 404);
-        }
-
-        return response()->json([
-            'data' => $stores,
-            'total' => count($stores),
-        ]);
-    }
     public function store(Request $request)
     {
         $store = Store::find($request->id);
@@ -67,12 +56,21 @@ class StoreController extends Controller
             return response()->json(['message' => 'Store not found.'], 404);
         }
 
+        $favorites = auth()->user()->favorites->pluck('id')->toArray();
+
+        $store->products->each(function ($product) use ($favorites) {
+            $product->is_favorite = in_array($product->id, $favorites);
+        });
+
         $products = $store->products->map(function ($product) {
             return [
                 'id' => $product->id,
                 'name' => $product->name,
                 'price' => $product->price,
+                'quantity' => $product->quantity,
+                'discount' => $product->discount,
                 'image' => $product->images->isNotEmpty() ? $product->images->first()->path : null,
+                'is_favorite' =>  $product->is_favorite
             ];
         });
         return response()->json([
@@ -80,7 +78,43 @@ class StoreController extends Controller
             'name' => $store->name,
             'location' => json_decode($store->location),
             'image' => $store->image,
+            'discount'=>$store->discount,
             'products' => $products,
         ]);
+    }
+    public function addStore(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'user_id' => 'required|exists:users,id',
+            'name' => 'required|string|max:255',
+            'image' => 'image',
+            'location' => 'required|json',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => 'Adding failed.',
+                'data' => $validator->errors()
+            ], 401);
+        }
+        $admin = User::find($request->get('user_id'));
+        if($admin->role->name != 'admin'||$admin->store){
+            return response()->json(['message' => 'Incorrect admin id.'], 422);
+        }
+        $store = new Store();
+        $store->name = $request->get('name');
+        $store->user_id = $request->get('user_id');
+        $store->location = $request->input('location');
+        $store->image = null;
+        if ($request->hasFile('image')) {
+            $path = $request->file('image')->store('images/stores', 'public');
+            $store->image = 'storage/' . str_replace('public/', '', $path);
+        }
+
+        $store->save();
+
+        ProcessLocation::dispatch($store, json_decode($request->input('location'), true));
+
+        return response()->json(['message' => 'Store added successfully!', 'store' => $store], 201);
     }
 }

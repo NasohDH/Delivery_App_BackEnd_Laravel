@@ -11,39 +11,24 @@ class AdController extends Controller
 {
     public function index()
     {
-        $ads = Ad::latest()->paginate(1);
+        $ads = Ad::all();
 
         if ($ads->isEmpty()) {
             return response()->json([
-                'message' => 'No Ad available for id : ' . \request('page'),
-                'links' => [
-                    'next' => $ads->url(1),
-                    'prev' => null,
-                ],
+                'message' => 'No Ad available'
             ], 404);
         }
 
-        $currentAd = $ads->first();
-
         return response()->json([
-            'ad' => [
-                'image' => $currentAd['image'],
-            ],
-            'pagination' => [
-                'current_page' => $ads->currentPage(),
-                'total' => $ads->total(),
-                'links' => [
-                    'next' => $ads->nextPageUrl(),
-                    'prev' => $ads->previousPageUrl(),
-                ],
-            ],
+            'data' => $ads,
         ], 200);
     }
 
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(),[
-            'image' => 'required|image|mimes:jpeg,png,jpg|max:2048',
+            'image' => 'required|image|max:2048',
+            'store_id' => 'required|exists:stores,id'
         ]);
 
         if ($validator->fails()){
@@ -53,9 +38,12 @@ class AdController extends Controller
             ],401);
         }
 
-        $path = $request->file('image')->store('ads', 'public');
+        $path = $request->file('image')->store('images/ads', 'public');
+        $path = 'storage/' . str_replace("public/", "", $path);
+
         $ad = Ad::create([
             'image' => $path,
+            'store_id' => $request->store_id
         ]);
 
         return response()->json([

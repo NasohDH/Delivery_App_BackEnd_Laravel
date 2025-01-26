@@ -20,7 +20,9 @@ class StoreFactory extends Factory
                 'latitude' => $this->faker->latitude,
                 'longitude' => $this->faker->longitude,
             ]),
+            'discount' => 10.5,
             'image' => 'storage/images/stores/store.png',
+            'user_id' => 1,
         ];
     }
 }

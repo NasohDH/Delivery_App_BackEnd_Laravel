@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Category;
 use Illuminate\Http\Request;
+use Validator;
 
 class CategoryController extends Controller
 {
@@ -16,33 +17,59 @@ class CategoryController extends Controller
                 'data' => []
             ], 404);
         }
+        $data = $this->buildCategoryHierarchy($categories);
 
         return response()->json([
             'message' => 'Categories retrieved successfully.',
-            'data' => $categories
+            'data' => $data
         ]);
     }
-    public function getSubcategoriesByCategory($categoryID){
-        $category = Category::where('id',$categoryID)->where('parent_id', null)->first();
 
-        if (!$category) {
+    private function buildCategoryHierarchy($categories)
+    {
+        $result = [];
+
+        foreach ($categories as $category) {
+            $result[] = [
+                'id' => $category->id,
+                'name' => $category->name,
+                'color' => $category->color,
+                'parent_id' => $category->parent_id,
+                'image' => $category->image,
+                'created_at' => $category->created_at,
+                'updated_at' => $category->updated_at,
+                'subcategories' => $this->buildCategoryHierarchy($category->subcategories)
+            ];
+        }
+        return $result;
+    }
+    public function store(Request $request)
+    {
+        $validator = Validator::make($request->all(),[
+            'name' => 'required',
+            'parent_id' => 'exists:categories,id',
+            'image' => 'required|image|max:2048',
+        ]);
+
+        if ($validator->fails()){
             return response()->json([
-                'message' => 'Category not found.'
-            ], 404);
+                'message' => "Failed to add category.",
+                'data' =>$validator->errors()
+            ],401);
         }
 
-        $subcategories = $category->subcategories;
+        $path = $request->file('image')->store('images/categories', 'public');
+        $path = 'storage/' . str_replace("public/", "", $path);
 
-        if ($subcategories->isEmpty()) {
-            return response()->json([
-                'message' => 'No subcategories found for this category.',
-                'data' => []
-            ],404);
-        }
+        Category::create([
+            'name' => $request->get('name'),
+            'color' => $request->get('color'),
+            'parent_id' => $request->get('parent_id'),
+            'image' => $path
+        ]);
 
         return response()->json([
-            'message' => 'Subcategories retrieved successfully.',
-            'data' => $subcategories
-        ],200);
+            'message' => 'Category created successfully.',
+        ], 201);
     }
 }
